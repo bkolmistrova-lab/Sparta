@@ -186,7 +186,7 @@ with st.form("prediction_form"):
             min_value=date(2015, 1, 1),
         )
         kickoff = st.selectbox(
-            "Čas výkopu",
+            "Čas výkopu (případně zaokrouhlený na celou hodinu dolů)",
             options=KICKOFF_TIMES,
             index=8,  # default 20:00
         )
@@ -264,4 +264,18 @@ st.caption(
     f"Model: Random Forest (1 000 stromů, max_depth=10)  ·  "
     f"Trénováno na {n_matches} zápasech (2015–2026, bez COVID)  ·  "
     f"R² = {r2}  ·  MAE = ± {mae:,} diváků".replace(",", " ")
+)
+
+st.markdown(
+    """
+    <div style="text-align: center; color: #7f8c8d; font-size: 0.8em; margin-top: 30px; line-height: 1.4; border-top: 1px solid #e0e0e0; padding-top: 15px;">
+        <b>Upozornění o autorských právech a užití dat</b><br>
+        Tento software je akademickým výstupem v rámci <b>Czechitas Digitální akademie</b>. 
+        Veškerá práva k logu, obchodní značce a chráněným názvům náleží výhradnímu vlastníkovi 
+        (AC Sparta Praha fotbal, a.s.). Jejich užití v této aplikaci splňuje podmínky <b>férového užití 
+        (Fair Use) pro vzdělávací a výzkumné účely</b>. Výstupy modelu jsou pouze orientační a neslouží 
+        k žádným komerčním ani oficiálním účelům.
+    </div>
+    """,
+    unsafe_allow_html=True
 )
