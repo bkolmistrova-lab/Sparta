@@ -24,10 +24,10 @@ FEATURES = [
     "ATRAKTIVITA_FANOUS",
     "ATRAKTIVITA_VSTUPNE",
     "PRECIPITATION",
-    "RAIN",
-    "SNOWFALL",
-    "UEFA_VAHA",
+    'DAY_OF_WEEK',           
+    'MONTH',
     "POCASI_KATEGORIE",
+    "UEFA_VAHA",
 ]
 
 UEFA_OPTIONS = {
@@ -52,14 +52,14 @@ def train_model():
     pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
         ("model", RandomForestRegressor(
-            n_estimators=1000,
-            max_depth=10,
-            min_samples_leaf=4,
+            n_estimators=500,
+            max_depth=7,
+            min_samples_leaf=5,
             random_state=42,
         )),
     ])
 
-    # 5-fold cross-validation (same setup as SPARTA2.ipynb)
+    # 5-fold cross-validation
     cv = KFold(n_splits=5, shuffle=True, random_state=42)
     y_cv = cross_val_predict(pipeline, X, y, cv=cv)
     mae = mean_absolute_error(y, y_cv)
@@ -101,6 +101,8 @@ def compute_pocasi_kategorie(temp: float, precipitation: float, snowfall: float)
     if precipitation >= 0.1:
         return 2
     return 1
+
+
 def fetch_weather(match_date: date, hour: int) -> dict | None:
     date_str = match_date.strftime("%Y-%m-%d")
     url = (
@@ -150,17 +152,21 @@ st.markdown(
 with st.expander("ℹ️ Co ovlivňuje predikci?"):
     st.markdown(
         """
-Model se naučil na základě **192 historických zápasů Sparty (2015–2026)** a při předpovědi zohledňuje tyto faktory:
+Model se naučil na základě **191 historických zápasů Sparty (2015–2026)** a při předpovědi zohledňuje tyto faktory:
 
 | Faktor | Váha v modelu | Popis |
 |---|---|---|
-| 📅 Věrnostní systém | 48 % | Model přikládá tomuto faktoru nejvyšší váhu — zachycuje rozdíl v průměrné návštěvnosti před a po zavedení věrnostního programu v červenci 2022 |
-| 🏆 Soupeř – fanoušci | 16 % | Jak velkou fanouškovskou základnu má soupeř (rivalové jako Slavia, Plzeň tahají nejvíce) |
-| 🌡️ Teplota | 12 % | Teplota vzduchu v čase výkopu |
-| 🎟️ Soupeř – vstupenky | 11 % | Jak atraktivní jsou vstupenky na daný zápas |
-| 🏅 UEFA zápas | 11 % | Evropské poháry přitahují více diváků než ligové zápasy |
-| 🌧️ Srážky / sníh | 2 % | Model přikládá srážkám překvapivě nízkou váhu |
-| 🌤️ Kategorie počasí | 1 % | Kombinované hodnocení komfortu počasí (1 = ideální až 5 = extrém) |
+| 💳 **Věrnostní systém** | **49.1 %** | Zvednutí divácké základny a stabilní zájem po zavedení permanentek a věrnostního systému (červenec 2022). |
+| 🏆 **Soupeř - fanoušci** | **15.8 %** | Divácká a fanouškovská atraktivita soupeře (derby se Slavií, zápasy s Plzní apod.). |
+| 🏅 **UEFA zápas** | **9.4 %** | Prestiž zápasů v evropských pohárech přitahuje stabilně vyšší návštěvy. |
+| 🎟️ **Soupeř - vstupenky** | **9.4 %** | Cenová hladina a atraktivita zápasových balíčků / lístků. |
+| 🌡️ **Teplota** | **7.2 %** | Teplota vzduchu v době výkopu utkání. |
+| 📅 **Den v týdnu** | **4.6 %** | Den v týdnu, kdy se hraje (rozdíly mezi víkendy a pracovními dny). |
+| 🗓️ **Měsíc** | **2.5 %** | Kalendářní měsíc (vliv letních prázdnin, zimní pauzy a sezonnosti). |
+| 🌧️ **Srážky / sníh** | **1 %** | Celkový úhrn srážek během zápasu. |
+| 🌤️ **Kategorie počasí** | **0.5 %** | Souhrnná vypočítaná kategorie celkového komfortu pro diváky. |
+
+
 
 ⚠️ Váha v modelu ukazuje, jak moc model daný faktor využívá při větvení rozhodovacích stromů — **není to přímá míra vlivu na návštěvnost**.
 
@@ -205,6 +211,10 @@ if submitted:
     atraktivita_vstupne = float(opp_row["ATRAKTIVITA_VSTUPNE"])
     atraktivita_fanous = float(opp_row["ATRAKTIVITA_FANOUS"])
 
+    # Automatický výpočet na pozadí bez nutnosti vstupu od uživatele
+    day_of_week = float(match_date.weekday())  # 0=Pondělí, 6=Neděle
+    month = float(match_date.month)
+
     with st.spinner("Načítám data o počasí z Open-Meteo..."):
         weather = fetch_weather(match_date, hour)
 
@@ -214,17 +224,21 @@ if submitted:
             "Zkontrolujte připojení k internetu a zkuste znovu."
         )
     else:
+        # Vytvoření DataFrame se všemi 11 features potřebnými pro model
         input_df = pd.DataFrame([{
-            "VERNOSTNI_SYSTEM": 1,
+            "VERNOSTNI_SYSTEM": 1.0,
             "TEMPERATURE": weather["temp"],
             "ATRAKTIVITA_FANOUS": atraktivita_fanous,
             "ATRAKTIVITA_VSTUPNE": atraktivita_vstupne,
             "PRECIPITATION": weather["precip"],
-            "RAIN": weather["rain"],
-            "SNOWFALL": weather["snow"],
+            "DAY_OF_WEEK": day_of_week,
+            "MONTH": month,
             "UEFA_VAHA": float(uefa_vaha),
-            "POCASI_KATEGORIE": compute_pocasi_kategorie(weather["temp"], weather["precip"], weather["snow"]),
+            "POCASI_KATEGORIE": float(compute_pocasi_kategorie(weather["temp"], weather["precip"], weather["snow"])),
         }])
+
+        # Seřazení sloupců přesně podle FEATURES listu
+        input_df = input_df[FEATURES]
 
         prediction = int(round(pipeline.predict(input_df)[0]))
         fill_pct = round(prediction / STADIUM_CAPACITY * 100, 1)
@@ -238,10 +252,10 @@ if submitted:
         col_a, col_b, col_c = st.columns(3)
         col_a.metric(
             "Odhadovaná návštěvnost",
-            f"{prediction:,} diváků".replace(",", " "),
+            f"{prediction:,} diváků".replace(",", " "),
         )
         col_b.metric("Zaplněnost stadionu", f"{fill_pct} %")
-        col_c.metric("Přesnost modelu (MAE)", f"± {mae:,}".replace(",", " "))
+        col_c.metric("Přesnost modelu (MAE)", f"± {mae:,}".replace(",", " "))
 
         st.progress(min(fill_pct / 100, 1.0))
 
@@ -261,9 +275,9 @@ if submitted:
 # --- FOOTER ---
 st.divider()
 st.caption(
-    f"Model: Random Forest (1 000 stromů, max_depth=10)  ·  "
+    f"Model: Random Forest (500 stromů, max_depth=7)  ·  "
     f"Trénováno na {n_matches} zápasech (2015–2026, bez COVID)  ·  "
-    f"R² = {r2}  ·  MAE = ± {mae:,} diváků".replace(",", " ")
+    f"R² = {r2}  ·  MAE = ± {mae:,} diváků".replace(",", " ")
 )
 
 st.markdown(
