@@ -145,8 +145,13 @@ with col_logo:
 with col_title:
     st.title("Sparta Praha – Predikce návštěvnosti")
 st.markdown(
-    "Vyberte soupeře, datum a typ zápasu. "
-    "Počasí se načte automaticky z **Open-Meteo API**."
+    """
+    Vyberte soupeře, datum a typ zápasu.  
+    Počasí se načte automaticky z **Open-Meteo API**.
+    
+    ⚠️ **Upozornění:** Vybírat lze **pouze soupeře z nabízeného seznamu**. 
+    Jedná se o týmy, které se Spartou reálně hrály v letech 2015–2026.
+    """
 )
 
 with st.expander("ℹ️ Co ovlivňuje predikci?"):
