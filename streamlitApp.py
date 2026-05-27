@@ -172,6 +172,7 @@ Model se naučil na základě **191 historických zápasů Sparty (2015–2026)*
 | 🌤️ **Kategorie počasí** | **0.5 %** | Souhrnná vypočítaná kategorie celkového komfortu pro diváky. |
 
 
+
 ⚠️ Váha v modelu ukazuje, jak moc model daný faktor využívá při větvení rozhodovacích stromů — **není to přímá míra vlivu na návštěvnost**.
 
 Počasí (teplota, déšť, sníh, kategorie počasí) se načítá a vypočítává automaticky podle zvoleného data a času výkopu.
