@@ -154,6 +154,7 @@ st.markdown(
     """
 )
 
+
 with st.expander("ℹ️ Co ovlivňuje predikci?"):
     st.markdown(
         """
