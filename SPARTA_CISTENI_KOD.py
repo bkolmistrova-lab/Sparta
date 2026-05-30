@@ -3,7 +3,7 @@ import re
 import numpy as np
 
 # Načtení datového souboru s korektním kódováním a oddělovačem
-Sparta = pd.read_csv("Sparta0.csv", sep=";", encoding="utf-8")
+Sparta = pd.read_csv("Sparta_puvodni.csv", sep=";", encoding="utf-8")
 
 # Převod sloupce s datem na skutečný datový typ datetime
 Sparta["Date"] = pd.to_datetime(Sparta["Date"], dayfirst=True)
