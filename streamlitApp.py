@@ -151,6 +151,8 @@ st.markdown(
     
     ⚠️ **Upozornění:** Vybírat lze **pouze soupeře z nabízeného seznamu**. 
     Jedná se o týmy, které se Spartou reálně hrály v letech 2015–2026.
+
+    ⚠️ **Upozornění:** Předpověď počasí je omezena na **7 dní dopředu**, pro vzdálenější termíny by API nahlásilo chybu.
     """
 )
 
