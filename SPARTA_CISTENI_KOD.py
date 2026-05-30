@@ -108,7 +108,7 @@ novy_radek = pd.DataFrame([hodnoty_novy_zapas], columns=sloupce_novy_zapas)
 Sparta = pd.concat([Sparta, novy_radek], ignore_index=True)
 
 # 1. Načtení souboru s atraktivitou soupeřů
-atraktivita = pd.read_csv("Atraktivita_CSV.csv", sep=";")
+atraktivita = pd.read_csv("Atraktivita.csv", sep=";")
 
 # 2. Odstranění neviditelných mezer v názvech sloupců
 Sparta.columns = Sparta.columns.str.strip()
