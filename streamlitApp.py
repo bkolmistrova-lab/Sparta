@@ -288,6 +288,28 @@ st.caption(
     f"R² = {r2}  ·  MAE = ± {mae:,} diváků".replace(",", " ")
 )
 
+# --- TLAČÍTKO S ODKAZEM NA BLOG ---
+st.markdown(
+    """
+    <a href="https://medium.com/@jitkahod/ac-sparta-praha-vs-nep%C5%99%C3%ADze%C5%88-po%C4%8Das%C3%AD-opravdu-po%C4%8Das%C3%AD-ur%C4%8Duje-kolik-lid%C3%AD-p%C5%99ijde-na-spartu-be2220a5d84b" target="_blank" style="text-decoration: none;">
+        <div style="
+            background-color: #800020; 
+            color: #FFD700; 
+            border: 1px solid #FFD700; 
+            padding: 10px 20px; 
+            text-align: center; 
+            border-radius: 6px; 
+            font-size: 15px; 
+            transition: 0.3s;
+            margin-bottom: 20px;
+        " onmouseover="this.style.backgroundColor='#600018'" onmouseout="this.style.backgroundColor='#800020'">
+            📖 Přečtěte si náš blog: AC Sparta Praha vs. Nepřízeň počasí
+        </div>
+    </a>
+    """,
+    unsafe_allow_html=True
+)
+
 st.markdown(
     """
     <div style="text-align: center; color: #7f8c8d; font-size: 0.8em; margin-top: 30px; line-height: 1.4; border-top: 1px solid #e0e0e0; padding-top: 15px;">
